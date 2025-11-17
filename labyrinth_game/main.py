@@ -8,7 +8,11 @@ from labyrinth_game.player_actions import (
     take_item,
     use_item,
 )
-from labyrinth_game.utils import describe_current_room
+from labyrinth_game.utils import (
+    attempt_open_treasure,
+    describe_current_room,
+    solve_puzzle,
+)
 
 # Состояние игрока
 game_state = {
@@ -44,7 +48,9 @@ def process_command(game_state, command):
         print("  инвентарь - посмотреть инвентарь")
         print("  взять [предмет] - подобрать предмет")
         print("  использовать [предмет] - использовать предмет")
-        print("  идти [направление] - переместиться (north, south, east, west)")
+        print("  идти [направление] - переместиться")
+        print("  решить - решить загадку в текущей комнате")
+        print("  открыть - попытаться открыть сундук с сокровищами")
         print("  выход - выйти из игры")
         print("  помощь - показать эту подсказку")
     
@@ -68,6 +74,17 @@ def process_command(game_state, command):
         else:
             print("Укажите направление. Например: 'идти north'")
     
+    elif main_command in ['решить', 'solve']:
+        # Если в treasure_room, пытаемся открыть сундук
+        if game_state['current_room'] == 'treasure_room':
+            attempt_open_treasure(game_state)
+        else:
+            # В других комнатах решаем загадки
+            solve_puzzle(game_state)
+    
+    elif main_command in ['открыть', 'open']:
+        attempt_open_treasure(game_state)
+    
     else:
         print("Неизвестная команда. Напишите 'помощь' для списка команд.")
 
@@ -82,6 +99,8 @@ def main():
     while not game_state['game_over']:
         command = get_input("\nЧто вы хотите сделать? ")
         process_command(game_state, command)
+    
+    print("Игра завершена. Спасибо за игру!")
 
 
 if __name__ == "__main__":

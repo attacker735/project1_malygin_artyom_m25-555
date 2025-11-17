@@ -73,7 +73,7 @@ ROOMS = {
         'description': 'Кузница с раскаленными углями. На наковальне '
                        'лежит незаконченный меч.',
         'exits': {'west': 'trap_room'},
-        'items': ['hammer', 'unfinished_sword'],
+        'items': ['hammer', 'unfinished_sword', 'treasure_key'],
         'puzzle': (
             'На стене написано: "Что можно сломать, даже если никогда '
             'не брать в руки?"',

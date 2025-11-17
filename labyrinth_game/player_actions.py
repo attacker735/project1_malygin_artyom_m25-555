@@ -32,10 +32,21 @@ def move_player(game_state, direction):
     
     if direction in exits:
         new_room = exits[direction]
+        
+        # Проверяем, является ли новая комната treasure_room
+        if new_room == 'treasure_room':
+            # Проверяем наличие rusty_key в инвентаре
+            if 'rusty_key' in game_state.get('player_inventory', []):
+                print("Вы используете найденный ключ, чтобы открыть путь в комнату сокровищ.")
+            else:
+                print("Дверь заперта. Нужен ключ, чтобы пройти дальше.")
+                return False
+        
         game_state['current_room'] = new_room
         game_state['steps_taken'] += 1
         print(f"Вы переместились {direction} в {new_room}.")
         
+        # Вызываем случайное событие после перемещения
         from labyrinth_game.utils import random_event
         random_event(game_state)
         

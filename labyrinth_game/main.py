@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # Абсолютные импорты для корректной работы с Poetry
+from labyrinth_game.constants import COMMANDS
 from labyrinth_game.player_actions import (
     get_input,
     move_player,
@@ -23,6 +24,15 @@ game_state = {
 }
 
 
+def show_help(commands):
+    """Показывает доступные команды с красивым форматированием"""
+    print("Доступные команды:")
+    for command, description in commands.items():
+        # Форматируем команду с выравниванием в 16 символов
+        formatted_command = command.ljust(16)
+        print(f"  {formatted_command} - {description}")
+
+
 def process_command(game_state, command):
     """Обрабатывает команды пользователя"""
     parts = command.split()
@@ -31,6 +41,14 @@ def process_command(game_state, command):
     
     main_command = parts[0]
     argument = parts[1] if len(parts) > 1 else None
+    
+    # Обработка односложных команд движения
+    direction_commands = ['north', 'south', 'east', 'west']
+    if main_command in direction_commands:
+        move_player(game_state, main_command)
+        # После перемещения показываем новую комнату
+        describe_current_room(game_state)
+        return
     
     if main_command in ['осмотреться', 'look', 'осмотр']:
         describe_current_room(game_state)
@@ -43,16 +61,7 @@ def process_command(game_state, command):
         game_state['game_over'] = True
     
     elif main_command in ['помощь', 'help']:
-        print("Доступные команды:")
-        print("  look - посмотреть вокруг")
-        print("  inventory - посмотреть инвентарь")
-        print("  take [предмет] - подобрать предмет")
-        print("  use [предмет] - использовать предмет")
-        print("  go [направление] - переместиться")
-        print("  solve - решить загадку в текущей комнате")
-        print("  open - попытаться открыть сундук с сокровищами")
-        print("  quit - выйти из игры")
-        print("  help - показать эту подсказку")
+        show_help(COMMANDS)
     
     elif main_command in ['взять', 'take']:
         if argument:
@@ -75,7 +84,7 @@ def process_command(game_state, command):
             print("Укажите направление. Например: 'идти north'")
     
     elif main_command in ['решить', 'solve']:
-        # Если в treasure_room, пытаемся открыть сундук
+        # В treasure_room команда solve всегда открывает сундук
         if game_state['current_room'] == 'treasure_room':
             attempt_open_treasure(game_state)
         else:

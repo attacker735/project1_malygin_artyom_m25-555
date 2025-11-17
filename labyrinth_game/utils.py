@@ -51,13 +51,50 @@ def solve_puzzle(game_state):
     
     user_answer = get_input("Ваш ответ: ")
     
-    if user_answer.lower() == correct_answer.lower():
+    # Создаем список альтернативных ответов
+    alternative_answers = []
+    
+    # Для числовых ответов добавляем текстовые альтернативы
+    if correct_answer == '10':
+        alternative_answers = ['десять', '10']
+    elif correct_answer == 'шаг шаг шаг':
+        alternative_answers = ['шаг шаг шаг', 'step step step']
+    elif correct_answer == 'резонанс':
+        alternative_answers = ['резонанс', 'resonance']
+    elif correct_answer == 'дыхание':
+        alternative_answers = ['дыхание', 'breath']
+    elif correct_answer == 'обещание':
+        alternative_answers = ['обещание', 'promise']
+    else:
+        alternative_answers = [correct_answer]
+    
+    # Проверяем ответ
+    if user_answer.lower() in [ans.lower() for ans in alternative_answers]:
         print("Верно! Загадка решена.")
+        
+        # Награда за решение загадки зависит от комнаты
+        if current_room == 'hall':
+            print("Пьедестал опускается, открывая проход на север.")
+        elif current_room == 'trap_room':
+            print("Плиты пола перестают двигаться. Теперь можно безопасно пройти.")
+        elif current_room == 'library':
+            print("Один из свитков светится, указывая на скрытый отсек.")
+        elif current_room == 'garden':
+            print("Цветок расцветает, и вы чувствуете прилив сил.")
+        elif current_room == 'forge':
+            print("Механизм в стене щёлкает, открывая потайной ящик.")
+        
         # Убираем загадку из комнаты
         room_data['puzzle'] = None
         return True
     else:
         print("Неверно. Попробуйте снова.")
+        
+        # В trap_room неверный ответ активирует ловушку
+        if current_room == 'trap_room':
+            print("Неверный ответ активирует ловушку!")
+            trigger_trap(game_state)
+        
         return False
 
 
@@ -91,7 +128,8 @@ def attempt_open_treasure(game_state):
             _, correct_code = puzzle
             user_code = get_input("Введите код: ")
             
-            if user_code == correct_code:
+            # Для кода также принимаем альтернативные варианты
+            if user_code == correct_code or (correct_code == '10' and user_code == 'десять'):
                 print("Код верный! Сундук открыт!")
                 room_data['items'].remove('treasure_chest')
                 print("В сундуке сокровище! Вы победили!")

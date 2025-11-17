@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import math
+
 from labyrinth_game.constants import ROOMS
 from labyrinth_game.player_actions import get_input
 
@@ -104,3 +106,89 @@ def attempt_open_treasure(game_state):
     else:
         print("Вы отступаете от сундука.")
         return False
+
+
+def pseudo_random(seed, modulo):
+    """
+    Генерирует псевдослучайное число в диапазоне [0, modulo)
+    на основе синусоидальной функции для предсказуемой случайности
+    """
+    # Используем синус для генерации "случайного" значения
+    sin_value = math.sin(seed * 12.9898)
+    multiplied = sin_value * 43758.5453
+    
+    # Получаем дробную часть
+    fractional = multiplied - math.floor(multiplied)
+    
+    # Приводим к нужному диапазону и возвращаем целое число
+    result = int(fractional * modulo)
+    return result
+
+
+def trigger_trap(game_state):
+    """
+    Обрабатывает срабатывание ловушки - удаляет случайный предмет
+    или наносит урон игроку
+    """
+    print("Ловушка активирована! Пол стал дрожать...")
+    
+    inventory = game_state.get('player_inventory', [])
+    
+    if inventory:
+        # Выбираем случайный предмет для удаления
+        item_index = pseudo_random(game_state['steps_taken'], len(inventory))
+        lost_item = inventory.pop(item_index)
+        print(f"Из-за тряски вы потеряли: {lost_item}!")
+    else:
+        # Если инвентарь пуст - наносим "урон"
+        damage_chance = pseudo_random(game_state['steps_taken'], 10)
+        if damage_chance < 3:  # 30% шанс проигрыша
+            print("Сильная тряска сбивает вас с ног! Вы падаете и теряете сознание...")
+            game_state['game_over'] = True
+        else:
+            print("Вам удается удержаться на ногах, но это было близко!")
+
+
+def random_event(game_state):
+    """
+    Случайные события, которые могут произойти при перемещении игрока
+    """
+    # Проверяем, происходит ли событие (10% шанс)
+    event_chance = pseudo_random(game_state['steps_taken'], 10)
+    if event_chance != 0:
+        return  # Событие не происходит
+    
+    # Выбираем тип события
+    event_type = pseudo_random(game_state['steps_taken'] + 1, 3)
+    current_room = game_state['current_room']
+    room_data = ROOMS.get(current_room, {})
+    
+    print("\n--- Случайное событие! ---")
+    
+    if event_type == 0:
+        # Находка: добавляем монетку в текущую комнату
+        if 'coin' not in room_data.get('items', []):
+            room_data.setdefault('items', []).append('coin')
+            print("Вы заметили блестящую монетку на полу! Она добавлена в комнату.")
+    
+    elif event_type == 1:
+        # Испуг: шорох
+        print("Вы слышите странный шорох из темного угла...")
+        if 'sword' in game_state.get('player_inventory', []):
+            print("Вы достаете меч, и шорох мгновенно прекращается.")
+        else:
+            print("Шорох усиливается... Вам стало не по себе.")
+    
+    elif event_type == 2:
+        # Срабатывание ловушки (только в trap_room без факела)
+        if (current_room == 'trap_room' and 
+            'torch' not in game_state.get('player_inventory', [])):
+            print("В темноте вы не заметили ловушку под ногами!")
+            trigger_trap(game_state)
+        else:
+            # Если условия не выполнены, превращаем в обычную находку
+            if 'coin' not in room_data.get('items', []):
+                room_data.setdefault('items', []).append('coin')
+                print("На вашем пути лежит забытая монетка!")
+    
+    print("--- Событие завершено ---\n")

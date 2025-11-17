@@ -35,6 +35,10 @@ def move_player(game_state, direction):
         game_state['current_room'] = new_room
         game_state['steps_taken'] += 1
         print(f"Вы переместились {direction} в {new_room}.")
+        
+        from labyrinth_game.utils import random_event
+        random_event(game_state)
+        
         return True
     else:
         print("Нельзя пойти в этом направлении.")
@@ -84,6 +88,8 @@ def use_item(game_state, item_name):
             print("Вы открыли бронзовую шкатулку и нашли внутри rusty_key!")
         else:
             print("Шкатулка пуста.")
+    elif item_name == 'coin':
+        print("Вы подбрасываете монетку. Она блестит в свете.")
     else:
         print(f"Вы не знаете, как использовать {item_name}.")
     

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
-from labyrinth_game.constants import ROOMS
+try:
+    # Для запуска через poetry run project (из корня проекта)
+    from labyrinth_game.constants import ROOMS
+except ImportError:
+    # Для прямого запуска python3 main.py из директории labyrinth_game
+    from constants import ROOMS
 
 # Состояние игрока
 game_state = {

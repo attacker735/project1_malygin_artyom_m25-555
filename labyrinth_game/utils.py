@@ -104,7 +104,10 @@ def attempt_open_treasure(game_state):
     room_data = ROOMS.get(current_room, {})
     
     # Проверяем, что игрок в комнате с сокровищами и есть сундук
-    if current_room != 'treasure_room' or 'treasure_chest' not in room_data.get('items', []):
+    is_treasure_room = current_room == 'treasure_room'
+    has_chest = 'treasure_chest' in room_data.get('items', [])
+    
+    if not is_treasure_room or not has_chest:
         print("Здесь нет сундука с сокровищами.")
         return False
     
@@ -129,7 +132,10 @@ def attempt_open_treasure(game_state):
             user_code = get_input("Введите код: ")
             
             # Для кода также принимаем альтернативные варианты
-            if user_code == correct_code or (correct_code == '10' and user_code == 'десять'):
+            first_condition = user_code == correct_code
+            second_condition = correct_code == '10' and user_code == 'десять'
+            
+            if first_condition or second_condition:
                 print("Код верный! Сундук открыт!")
                 room_data['items'].remove('treasure_chest')
                 print("В сундуке сокровище! Вы победили!")

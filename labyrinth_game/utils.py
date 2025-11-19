@@ -2,7 +2,15 @@
 
 import math
 
-from labyrinth_game.constants import ROOMS
+from labyrinth_game.constants import (
+    DAMAGE_THRESHOLD,
+    EVENT_PROBABILITY,
+    EVENT_TYPE_COUNT,
+    RANDOM_MULTIPLIER,
+    ROOMS,
+    SINE_MULTIPLIER,
+    TRAP_DAMAGE_CHANCE,
+)
 from labyrinth_game.player_actions import get_input
 
 
@@ -158,8 +166,8 @@ def pseudo_random(seed, modulo):
     на основе синусоидальной функции для предсказуемой случайности
     """
     # Используем синус для генерации "случайного" значения
-    sin_value = math.sin(seed * 12.9898)
-    multiplied = sin_value * 43758.5453
+    sin_value = math.sin(seed * SINE_MULTIPLIER)
+    multiplied = sin_value * RANDOM_MULTIPLIER
     
     # Получаем дробную часть
     fractional = multiplied - math.floor(multiplied)
@@ -185,8 +193,8 @@ def trigger_trap(game_state):
         print(f"Из-за тряски вы потеряли: {lost_item}!")
     else:
         # Если инвентарь пуст - наносим "урон"
-        damage_chance = pseudo_random(game_state['steps_taken'], 10)
-        if damage_chance < 3:  # 30% шанс проигрыша
+        damage_chance = pseudo_random(game_state['steps_taken'], TRAP_DAMAGE_CHANCE)
+        if damage_chance < DAMAGE_THRESHOLD:
             print("Сильная тряска сбивает вас с ног! Вы падаете и теряете сознание...")
             game_state['game_over'] = True
         else:
@@ -197,13 +205,13 @@ def random_event(game_state):
     """
     Случайные события, которые могут произойти при перемещении игрока
     """
-    # Проверяем, происходит ли событие (10% шанс)
-    event_chance = pseudo_random(game_state['steps_taken'], 10)
+    # Проверяем, происходит ли событие
+    event_chance = pseudo_random(game_state['steps_taken'], EVENT_PROBABILITY)
     if event_chance != 0:
         return  # Событие не происходит
     
     # Выбираем тип события
-    event_type = pseudo_random(game_state['steps_taken'] + 1, 3)
+    event_type = pseudo_random(game_state['steps_taken'] + 1, EVENT_TYPE_COUNT)
     current_room = game_state['current_room']
     room_data = ROOMS.get(current_room, {})
     

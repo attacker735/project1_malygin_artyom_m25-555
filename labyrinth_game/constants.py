@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
 
+# Константы для случайных событий
+EVENT_PROBABILITY = 10
+EVENT_TYPE_COUNT = 3
+DAMAGE_THRESHOLD = 3
+TRAP_DAMAGE_CHANCE = 10
+
+# Константы для псевдослучайного генератора
+SINE_MULTIPLIER = 12.9898
+RANDOM_MULTIPLIER = 43758.5453
+
 ROOMS = {
     'entrance': {
         'description': 'Вы в темном входе лабиринта. Стены покрыты мхом. '
